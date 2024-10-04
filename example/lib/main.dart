@@ -13,6 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vpn/flutter_vpn.dart';
 import 'package:flutter_vpn/state.dart';
 import 'package:flutter/services.dart'; // <- Added for SytemNavigator
+import 'package:flutter_vpn_example/show_certificates.dart'; // <- Added for Certificate Window
+
+// <- Add GlobalKey for navigation
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() => runApp(const MyApp());
 
@@ -53,6 +57,7 @@ class _MyAppState extends State<MyApp> {
       textColor = Colors.red;
     }
     return MaterialApp(
+      navigatorKey: navigatorKey, // <- Added navigator key
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Flutter VPN'),
@@ -63,8 +68,13 @@ class _MyAppState extends State<MyApp> {
                 if (result == 'Show Certificates') {
                   // Navigate to the settings page or handle settings logic
                   print('Show Certificates');
-                  FlutterVpn.fetchCertificates();
+                  // FlutterVpn.fetchCertificates(); // commented for now
 
+                  navigatorKey.currentState?.push( // <- navigatorKey works instead of Navigator (animation is slow)
+                    MaterialPageRoute(builder: (context) => const ShowCertificate()),
+                  );
+
+                  print('Done');
                 // } else if (result == 'Credits') {
                 //   // Handle credits logic
                 //   print('Credits selected');
