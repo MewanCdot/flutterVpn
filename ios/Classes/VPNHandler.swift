@@ -91,13 +91,13 @@ class VpnService {
                 p.username = username
                 p.passwordReference = self.kcs.load(key: passwordKey)
 
-                p.authenticationMethod = NEVPNIKEAuthenticationMethod.sharedSecret
+                p.authenticationMethod = NEVPNIKEAuthenticationMethod.sharedSecret // <- Add pinned certificate here??
                 if secret != nil {
                     p.sharedSecretReference = self.kcs.load(key: secretKey)
                 }
 
                 p.localIdentifier = ""
-                p.remoteIdentifier = ""
+                p.remoteIdentifier = "" // <- Add server ID here??
 
                 p.useExtendedAuthentication = true
                 p.disconnectOnSleep = false
@@ -105,11 +105,28 @@ class VpnService {
             } else {
                 let p = NEVPNProtocolIKEv2()
                 p.username = username
-                p.remoteIdentifier = server
+                p.remoteIdentifier = server // <- Add server ID here??
                 p.serverAddress = server
 
+                // Load pinned certificate here
+                /*
+                if let trustedCertificates = CertificateManager.shared.getTrustedCertificates() {
+                    // Assuming you want to use the first trusted certificate
+                    if let certificateData = trustedCertificates.first {
+                        p.identityReference = certificateData as CFData
+                    } else {
+                        print("No certificates available")
+                        return
+                    }
+                } else {
+                    print("Failed to load trusted certificates")
+                    return
+                }
+                */
+                //
+
                 p.passwordReference = self.kcs.load(key: passwordKey)
-                p.authenticationMethod = NEVPNIKEAuthenticationMethod.none
+                p.authenticationMethod = NEVPNIKEAuthenticationMethod.none // <- Add pinned certificate here??
 
                 p.useExtendedAuthentication = true
                 p.disconnectOnSleep = false

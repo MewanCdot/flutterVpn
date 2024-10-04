@@ -163,6 +163,9 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                     profile.setLocalId(bundle.getString("LocalId"));
                     
                     // profile.setRemoteId(bundle.getString("RemoteId"));
+                    // Current certificate specifies server identity as well
+                    // as server address but app only accepts server address as input,
+                    // hardcoded server id for now.
                     profile.setRemoteId("moon.strongswan.org"); // <- Added here 
 
                     profile.setVpnType(VpnType.fromIdentifier(bundle.getString("VpnType")));

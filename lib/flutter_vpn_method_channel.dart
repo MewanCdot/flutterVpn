@@ -134,7 +134,7 @@ class MethodChannelFlutterVpn extends FlutterVpnPlatform {
     /// Fetch trusted certificates from Android
   @override
   Future<List<String>> fetchCertificates() async {
-    print('Gere'); // coming here now
+    // native method for returning certificate list not implemented
     try {
       final certificates = await methodChannel.invokeMethod<List<dynamic>>('getTrustedCertificates');
       
