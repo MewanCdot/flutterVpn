@@ -30,42 +30,14 @@ import org.strongswan.android.data.VpnProfile;
 import org.strongswan.android.logic.imc.ImcState;
 import org.strongswan.android.logic.imc.RemediationInstruction;
 
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.security.cert.CertificateFactory;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-// import androidx.core.content.ContextCompat;
-
-//
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import android.util.Log;
-import java.io.FileInputStream;
-import java.io.File;
-// Add these imports at the top of your file
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.io.ByteArrayInputStream;
-// import java.security.cert.CertificateFactory;
-// import java.security.cert.X509Certificate;
-import java.util.Base64;
-
-//
-
-
-import java.util.ArrayList;
-import java.util.Enumeration;
-
 
 import io.xdea.flutter_vpn.R;
 
@@ -105,8 +77,6 @@ public class VpnStateService extends Service {
         PASSWORD_MISSING,
         CERTIFICATE_UNAVAILABLE,
     }
-
-    private static final String TAG = "VpnStateService";
 
     /**
      * Listener interface for bound clients that are interested in changes to
@@ -472,118 +442,6 @@ public class VpnStateService extends Service {
         mRetryTimeout = 0;
         mRetryIn = 0;
     }
-
-    /* Added method for retrieving Trusted Certificates */
-    // Adding pinned certificate her
-    private static final String CERTIFICATE_PEM = 
-    "-----BEGIN CERTIFICATE-----\n" +
-   "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\n" +
-   "FFD9O4VR\n" +
-   "-----END CERTIFICATE-----";
-
-    public String fetchTrustedCertificates(Context context) {
-        StringBuilder certificatesString = new StringBuilder();
-        List<KeyStore> mKeyStores = new ArrayList<>();
-    
-        // checking for pinned certificate
-        // Added pinned certificate here
-        try {
-            // Remove the header and footer and decode the base64 content
-            String pemCert = CERTIFICATE_PEM
-                    .replace("-----BEGIN CERTIFICATE-----", "")
-                    .replace("-----END CERTIFICATE-----", "")
-                    .replaceAll("\\s+", ""); // Remove whitespace
-    
-            byte[] decoded = Base64.getDecoder().decode(pemCert);
-            
-            // Create a CertificateFactory and generate the certificate
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            X509Certificate pinnedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(decoded));
-    
-            // Add pinned certificate to the list of trusted certificates
-            // certs.add(pinnedCert.getEncoded());
-            Log.i(TAG, "Pinned Certificate Added Successfully!!!");
-            Log.d(TAG, "Pinned Certificate Details:");
-            Log.d(TAG, "Subject DN: " + pinnedCert.getSubjectDN());
-            Log.d(TAG, "Issuer DN: " + pinnedCert.getIssuerDN());
-            Log.d(TAG, "Serial Number: " + pinnedCert.getSerialNumber());
-            Log.d(TAG, "========================================");
-            Log.d(TAG, "Validity Period: From " + pinnedCert.getNotBefore() + " to " + pinnedCert.getNotAfter());
-            Log.d(TAG, "Signature Algorithm: " + pinnedCert.getSigAlgName());        
-    
-        } catch (Exception e) {
-            Log.e(TAG, "Error adding pinned certificate", e);
-            return null;
-        }
-
-
-        for (String name : new String[]{"LocalCertificateStore", "AndroidCAStore", "AndroidKeyStore", "PKCS12"}) {
-            KeyStore store;
-            try {
-                // Print the name of the KeyStore being processed
-                Log.d(TAG, "Loading KeyStore: " + name);
-                
-                store = KeyStore.getInstance(name);
-                store.load(null, null);
-            
-                // Get the aliases as an Enumeration and iterate using a while loop
-                Enumeration<String> aliases = store.aliases();
-                while (aliases.hasMoreElements()) {
-                    String alias = aliases.nextElement();
-                    Certificate cert = store.getCertificate(alias);
-                    if (cert instanceof X509Certificate) {
-                        X509Certificate x509Cert = (X509Certificate) cert;
-                        
-                        // Print details of the certificate
-                        Log.d(TAG, "Subject DN: " + x509Cert.getSubjectDN());
-                        Log.d(TAG, "Issuer DN: " + x509Cert.getIssuerDN());
-                        Log.d(TAG, "Serial Number: " + x509Cert.getSerialNumber());
-                        Log.d(TAG, "========================================");
-            
-                        // Optionally, print more details like Validity period, Signature Algorithm, etc.
-                        Log.d(TAG, "Validity Period: From " + x509Cert.getNotBefore() + " to " + x509Cert.getNotAfter());
-                        Log.d(TAG, "Signature Algorithm: " + x509Cert.getSigAlgName());
-                    }
-                }
-            
-                mKeyStores.add(store);
-            } catch (Exception e) {
-                Log.e(TAG, "VpnStateService Unable to load KeyStore: " + name);
-                e.printStackTrace();
-            }
-        }
-        
-        Log.e(TAG, "Loop Done!!!");
-        return certificatesString.toString();
-    }
-
 
     /**
      * Special Handler subclass that handles the retry countdown (more accurate than CountDownTimer)

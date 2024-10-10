@@ -71,12 +71,6 @@ import java.util.Locale;
 import java.util.SortedSet;
 import java.util.UUID;
 
-import java.util.Base64; // <- Added
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
@@ -161,13 +155,7 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                     profile.setUsername(bundle.getString("Username"));
                     profile.setPassword(bundle.getString("Password"));
                     profile.setLocalId(bundle.getString("LocalId"));
-                    
-                    // profile.setRemoteId(bundle.getString("RemoteId"));
-                    // Current certificate specifies server identity as well
-                    // as server address but app only accepts server address as input,
-                    // hardcoded server id for now.
-                    profile.setRemoteId("moon.strongswan.org"); // <- Added here 
-
+                    profile.setRemoteId(bundle.getString("RemoteId"));
                     profile.setVpnType(VpnType.fromIdentifier(bundle.getString("VpnType")));
 
                     profile.setSelectedAppsHandling(SelectedAppsHandling.SELECTED_APPS_DISABLE);
@@ -258,9 +246,7 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                         /* store this in a separate (volatile) variable to avoid
                          * a possible deadlock during deinitialization */
                         mCurrentCertificateAlias = mCurrentProfile.getCertificateAlias();
-                        Log.d(TAG, "Current Alias=" + mCurrentCertificateAlias);
                         mCurrentUserCertificateAlias = mCurrentProfile.getUserCertificateAlias();
-                        Log.d(TAG, "Current Alias=" + mCurrentUserCertificateAlias);
 
                         startConnection(mCurrentProfile);
                         mIsDisconnecting = false;
@@ -619,68 +605,8 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
      *
      * @return a list of DER encoded CA certificates
      */
-
-     // Adding pinned certificate her
-     private static final String CERTIFICATE_PEM = 
-     "-----BEGIN CERTIFICATE-----\n" +
-    "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\n" +
-    "FFD9O4VR\n" +
-    "-----END CERTIFICATE-----";
-
     private byte[][] getTrustedCertificates() {
-        Log.i(TAG, "get trusted certificates");
         ArrayList<byte[]> certs = new ArrayList<byte[]>();
-        
-        // Added pinned certificate here
-        try {
-            // Remove the header and footer and decode the base64 content
-            String pemCert = CERTIFICATE_PEM
-                    .replace("-----BEGIN CERTIFICATE-----", "")
-                    .replace("-----END CERTIFICATE-----", "")
-                    .replaceAll("\\s+", ""); // Remove whitespace
-    
-            byte[] decoded = Base64.getDecoder().decode(pemCert);
-            
-            // Create a CertificateFactory and generate the certificate
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            X509Certificate pinnedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(decoded));
-    
-            // Add pinned certificate to the list of trusted certificates
-            certs.add(pinnedCert.getEncoded());
-            Log.i(TAG, "Pinned Certificate Added Successfully!!!");
-    
-        } catch (Exception e) {
-            Log.e(TAG, "Error adding pinned certificate", e);
-            return null;
-        }
-
         TrustedCertificateManager certman = TrustedCertificateManager.getInstance().load();
         try {
             String alias = this.mCurrentCertificateAlias;
@@ -694,11 +620,6 @@ public class CharonVpnService extends VpnService implements Runnable, VpnStateSe
                 for (X509Certificate cert : certman.getAllCACertificates().values()) {
                     certs.add(cert.getEncoded());
                 }
-            }
-            // Print certificates in Base64 format
-            for (byte[] certBytes : certs) {
-                String certBase64 = Base64.getEncoder().encodeToString(certBytes);
-                Log.e(TAG, "Certificate: " + certBase64);
             }
         } catch (CertificateEncodingException e) {
             e.printStackTrace();

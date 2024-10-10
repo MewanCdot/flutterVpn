@@ -129,25 +129,4 @@ class MethodChannelFlutterVpn extends FlutterVpnPlatform {
         if (mtu != null) 'mtu': mtu,
         if (port != null) 'port': port,
       });
-
-
-    /// Fetch trusted certificates from Android
-  @override
-  Future<List<String>> fetchCertificates() async {
-    // native method for returning certificate list not implemented
-    try {
-      final certificates = await methodChannel.invokeMethod<List<dynamic>>('getTrustedCertificates');
-      
-      if (certificates != null) {
-        for (var certificate in certificates) {
-          print('Fetched certificate: $certificate');
-        }
-      }
-      return certificates?.cast<String>() ?? [];
-    } catch (e) {
-      print('Error fetching certificates: $e');
-      return [];
-    }
-  }
-
 }

@@ -12,11 +12,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vpn/flutter_vpn.dart';
 import 'package:flutter_vpn/state.dart';
-import 'package:flutter/services.dart'; // <- Added for SytemNavigator
-import 'package:flutter_vpn_example/show_certificates.dart'; // <- Added for Certificate Window
-
-// <- Add GlobalKey for navigation
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() => runApp(const MyApp());
 
@@ -44,89 +39,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    
-    // <- Added colors for visibility
-    Color textColor = Colors.black;
-    if('$state' == 'FlutterVpnState.connecting') {
-      textColor = Colors.orange;
-    } else if ('$state' == 'FlutterVpnState.connected') {
-      textColor = Colors.green;
-    } else if ('$state' == 'FlutterVpnState.disconnected') {
-      textColor = Colors.blue;
-    } else if ('$state' == 'FlutterVpnState.error') {
-      textColor = Colors.red;
-    }
     return MaterialApp(
-      navigatorKey: navigatorKey, // <- Added navigator key
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Flutter VPN'),
-          actions: <Widget>[
-            PopupMenuButton<String>(
-              onSelected: (String result) {
-                // Handle the menu selection
-                if (result == 'Show Certificates') {
-                  // Navigate to the settings page or handle settings logic
-                  print('Show Certificates');
-                  // FlutterVpn.fetchCertificates(); // commented for now
-
-                  navigatorKey.currentState?.push( // <- navigatorKey works instead of Navigator (animation is slow)
-                    MaterialPageRoute(builder: (context) => const ShowCertificate()),
-                  );
-
-                  print('Done');
-                // } else if (result == 'Credits') {
-                //   // Handle credits logic
-                //   print('Credits selected');
-                
-                } else if (result == 'Exit') {
-                  // Handle exit logic
-                  print('Exit selected');
-                  // exit(0);
-                  /*await*/ FlutterVpn.disconnect(); // Can only await in async function
-                  SystemNavigator.pop(); // to exit the app
-
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'Show Certificates',
-                    child: Text('Show Certificates'),
-                  ),
-                  
-                  // const PopupMenuItem<String>(
-                  //   value: 'Credits',
-                  //   child: Text('Credits'),
-                  // ),
-
-                  const PopupMenuItem<String>(
-                    value: 'Exit',
-                    child: Text('Exit'),
-                  ),
-                ];
-              },
-            ),
-          ],
         ),
-
         body: ListView(
           padding: const EdgeInsets.all(12),
           children: <Widget>[
-            Text.rich(
-              TextSpan(
-                children: [
-                  const TextSpan(
-                    text: 'Current State: ',
-                    style: TextStyle(color: Colors.black), // Default color
-                  ),
-                  TextSpan(
-                    text: '$state', // The state part
-                    style: TextStyle(color: textColor), // Apply the dynamic color
-                  ),
-                ],
-              ),
-            ),
+            Text('Current State: $state'),
             Text('Current Charon State: $charonState'),
             TextFormField(
               controller: _addressController,
@@ -160,7 +81,6 @@ class _MyAppState extends State<MyApp> {
               onPressed: () async {
                 var newState = await FlutterVpn.currentState;
                 setState(() => state = newState);
-                print('Updated State!');
               },
             ),
             ElevatedButton(
@@ -168,29 +88,11 @@ class _MyAppState extends State<MyApp> {
               onPressed: () async {
                 var newState = await FlutterVpn.charonErrorState;
                 setState(() => charonState = newState);
-                print('Updated Charon State!');
               },
             ),
-            
-            // <- Added
-            // Button sends command to FlutterVpn method channel to
-            // fetch certificates available in the smartphone.
-            // Only android supported, iOS pending.
-            // Pressing the button prints the certificates in 
-            // debug console. To view in app ui, need to revamp
-            // main app window for viewing certificate list and
-            // changing method channels to pass strings.
-            // <- Commented. 
-            // Shifted to pop up window in top right corner
-            // 
-            // const ElevatedButton(
-            //     onPressed: FlutterVpn.fetchCertificates,
-            //     child: Text('Show Certificates'),
-            // ),
           ],
         ),
       ),
     );
   }
-
 }

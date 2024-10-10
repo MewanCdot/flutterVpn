@@ -1,14 +1,18 @@
 # Flutter VPN plugin
 
-This plugin help developers to access VPN service in their flutter app.  
-
-The Android part was implemented by [strongswan](https://www.strongswan.org/) which support ikev2 protocol.  
-The iOS part was implemented by NEVPNManager.
-
-Referenced from <a href="https://github.com/Solido/awesome-flutter">
+<a href="https://pub.dartlang.org/packages/flutter_vpn">
+    <img src="https://img.shields.io/pub/v/flutter_vpn.svg"
+    alt="Pub Package" />
+</a>
+<a href="https://github.com/Solido/awesome-flutter">
    <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square" />
 </a>
 
+This plugin help developers to access VPN service in their flutter app.  
+本插件帮助开发者在自己的应用内调用 VPN 服务。
+
+The Android part was implemented by [strongswan](https://www.strongswan.org/) which support ikev2 protocol.  
+The iOS part was implemented by NEVPNManager.
 
 Issues and PRs are welcome!
 
@@ -43,9 +47,7 @@ android {
     }
 }
 ```
-The plugin will automatically download pre-build native libraries from [here](https://github.com/X-dea/Flutter_VPN/releases) if they haven't been downloaded. If it does not work, download the libraries from link and extract to android/src/main/libs .
-
-Android App does not support custom profile addition and certificate installation. Only server, username and password are user inputs.
+The plugin will automatically download pre-build native libraries from [here](https://github.com/X-dea/Flutter_VPN/releases) if they haven't been downloaded.
 
 ### For iOS
 

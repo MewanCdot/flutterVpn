@@ -24,9 +24,6 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.NonNull
 
-//import java.util.Base64
-import android.util.Base64
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -62,39 +59,6 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
-    // Added my plugin here
-    private fun getTrustedCertificates(): List<String>? {
-        //Create an instance of VpnStateService
-        val vpnStateService = VpnStateService()
-        
-        // Call the method to fetch trusted certificates
-        val certificatesInfo = vpnStateService.fetchTrustedCertificates(activityBinding.activity.applicationContext)
-        
-        // Process the returned string and convert it into a list of Base64 encoded certificates
-        val certs = mutableListOf<String>()
-        
-        if (certificatesInfo != null) {
-            // Split the output by lines
-            val lines = certificatesInfo.split("\n").filter { it.isNotBlank() }
-
-            // Assuming the certificates are in a specific format
-            for (line in lines) {
-                // Check if the line contains a certificate (you can customize this condition)
-                if (line.startsWith("Subject:")) {
-                    // Extract the certificate (this may need customization)
-                    // For this example, just encode the line for simplicity
-                    val certData = line.substringAfter("Subject: ").trim()
-                    // Convert to Base64 (if the data is in a string format that can be Base64 encoded)
-                    val encodedCert = Base64.encodeToString(certData.toByteArray(), Base64.NO_WRAP)
-                    certs.add(encodedCert)
-                }
-            }
-        }
-        
-        return certs
-    }
-    //
-
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         // Load charon bridge
         System.loadLibrary("androidbridge")
@@ -112,12 +76,6 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             vpnStateServiceConnection,
             Service.BIND_AUTO_CREATE
         )
-
-        // Added here. My plugin
-        // Register method channel
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "my_new_plugin_channel")
-        channel.setMethodCallHandler(this)
-
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -191,17 +149,6 @@ class FlutterVpnPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             "getCharonErrorState" -> result.success(vpnStateService?.errorState?.ordinal)
             "disconnect" -> vpnStateService?.disconnect()
-
-            // Added here
-            "getTrustedCertificates" -> {
-                val certificates = getTrustedCertificates()
-                if (certificates != null) {
-                    result.success(certificates)
-                } else {
-                    result.error("CERTIFICATE_ERROR", "Failed to retrieve certificates", null)
-                }
-            }
-            //
             else -> result.notImplemented()
         }
     }

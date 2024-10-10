@@ -29,14 +29,6 @@ import java.util.Hashtable;
 import java.util.Observable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-// <- Added
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.security.cert.CertificateFactory;
-
 public class TrustedCertificateManager extends Observable
 {
 	private static final String TAG = TrustedCertificateManager.class.getSimpleName();
@@ -65,65 +57,27 @@ public class TrustedCertificateManager extends Observable
 		}
 	}
 
-	// method for retrieving pinned certifiacate
-	private void loadPinnedCertificate() {
-		try {
-			File pemFile = new File("cert.pem"); // Adjust path if necessary
-			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-			FileInputStream fis = new FileInputStream(pemFile);
-			X509Certificate pinnedCert = (X509Certificate) certFactory.generateCertificate(fis);
-			mCACerts.put("pinnedCert", pinnedCert); // Store it with a specific alias
-			Log.d(TAG, "Pinned certificate loaded successfully: " + pinnedCert.getSubjectDN());
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to load pinned certificate from cert.pem", e);
-		} catch (Exception e) {
-			Log.e(TAG, "Error while converting PEM file to X509Certificate", e);
-		}
-	}
-	
-
 	/**
 	 * Private constructor to prevent instantiation from other classes.
 	 */
-	private TrustedCertificateManager() {
-		for (String name : new String[]{"LocalCertificateStore", "AndroidCAStore", "AndroidKeyStore", "PKCS12"}) {
+	private TrustedCertificateManager()
+	{
+		for (String name : new String[]{"LocalCertificateStore", "AndroidCAStore"})
+		{
 			KeyStore store;
-			try {
+			try
+			{
 				store = KeyStore.getInstance(name);
 				store.load(null, null);
 				mKeyStores.add(store);
-	
-				// Log certificates in the KeyStore
-				Enumeration<String> aliases = store.aliases(); // Get the aliases of the KeyStore
-				while (aliases.hasMoreElements()) {
-					String alias = aliases.nextElement();
-					Certificate cert = store.getCertificate(alias);
-	
-					if (cert != null) {
-						Log.e(TAG, "Loaded certificate for alias: " + alias);
-						Log.e(TAG, "Certificate type: " + cert.getType());
-	
-						if (cert instanceof X509Certificate) {
-							X509Certificate x509Cert = (X509Certificate) cert;
-							Log.e(TAG, "Subject DN: " + x509Cert.getSubjectDN());
-							Log.e(TAG, "Issuer DN: " + x509Cert.getIssuerDN());
-							Log.e(TAG, "Serial Number: " + x509Cert.getSerialNumber());
-							Log.e(TAG, "========================================");
-						}
-					} else {
-						Log.e(TAG, "No certificate found for alias: " + alias);
-					}
-				}
-	
-			} catch (Exception e) {
-				Log.e(TAG, "TrustedCertificateManager Unable to load KeyStore: " + name, e);
+			}
+			catch (Exception e)
+			{
+				Log.e(TAG, "Unable to load KeyStore: " + name);
+				e.printStackTrace();
 			}
 		}
-		Log.i(TAG, "Loop done");
-		// lOAD THE PINNED CERTIFICATE
-		loadPinnedCertificate();
 	}
-	
 
 	/**
 	 * This is not instantiated until the first call to getInstance()
