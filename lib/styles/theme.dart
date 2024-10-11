@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primaryColor = Color(0xFF0078a1); // Primary color
+  static const Color primaryColor = Color(0xFF00BFFF); // Primary color
+  static const Color primaryColorDark = Color(0xFF0078a1);
+  static const Color primaryColorLight = Color(0xFF00BFFF);
   static const Color secondaryColor = Color.fromARGB(214, 235, 144, 144);
   static const Color accentColor = Color(0xFF96BDC2); // Example accent color
   static const Color backgroundColor = Color(0xFFFFFFFF);
@@ -11,7 +13,7 @@ class AppColors {
 }
 
 ThemeData lightTheme = ThemeData(
-  primaryColor: AppColors.primaryColor,
+  primaryColor: AppColors.primaryColorLight,
   scaffoldBackgroundColor: AppColors.backgroundColor,
   colorScheme: ColorScheme.light(
     primary: AppColors.primaryColor,
@@ -27,7 +29,7 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  primaryColor: AppColors.primaryColor,
+  primaryColor: AppColors.primaryColorDark,
   scaffoldBackgroundColor: Colors.black,
   colorScheme: ColorScheme.dark(
     primary: AppColors.primaryColor,

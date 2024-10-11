@@ -68,10 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
             width: double.infinity,
             height: 50,
             alignment: Alignment.center, // Center the text vertically
-            child: Text(
+            child: const Text(
               'Status: ${MyHomePage.temp}',
               style: TextStyle(
-                color: Colors.white, 
+                // color: Theme.of(context).textTheme.bodyLarge!.color, // <- color not set properly
                 fontSize: 16, // Adjust the font size if needed
               ),
             ),
